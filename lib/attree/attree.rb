@@ -94,7 +94,6 @@ class Attree
     unless target_node.kind_of? Attree
       raise ArgumentError, "target is attribute: #{target}"
     end
-    target_node_rules = target_node.instance_variable_get(:@rules)
     if target_node.get_rule(lastlabel)
       raise ArgumentError, "rule already defined: #{target}"
     end
