@@ -27,8 +27,8 @@ class Attree
         h.each(&block)
       end
     else
-      @irules.each {|l1, h|
-        h.each {|l2, r|
+      @irules.each {|l1, hh|
+        hh.each {|l2, r|
           yield l1, l2, r
         }
       }
