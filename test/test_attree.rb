@@ -116,7 +116,7 @@ class TestAttree < Test::Unit::TestCase
     t.each_rule {|rule|
       rules << rule
     }
-    labels = rules.map {|rule| rule[0] }
+    labels = rules.map {|labelpath, (rulemethod, param, strong_depends, weak_depends)| labelpath }
     assert_equal(["s", "t"], labels.sort)
   end
 
