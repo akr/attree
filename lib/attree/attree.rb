@@ -103,26 +103,24 @@ class Attree
     strong_depends = strong_depends.map {|d| normalize_labelpath(d) }
     weak_depends = weak_depends.map {|d| normalize_labelpath(d) }
     labelary = labelpath_to_a(target)
-    target_ary = labelary.dup
-    if labelary.empty?
-      raise ArgumentError, "empty target"
-    end
-    lastlabel = labelary.pop
-    target_node = fetch_known(labelary.join("/"))
-    unless target_node.kind_of? Attree
-      raise ArgumentError, "target is attribute: #{target}"
-    end
-    if target_node.get_rule(lastlabel)
-      raise ArgumentError, "rule already defined: #{target}"
-    end
-    case target_ary.length
+    case labelary.length
     when 1
+      if @srules[target]
+        raise ArgumentError, "rule already defined: #{target}"
+      end
       @srules[target] = [rulemethod, param, strong_depends, weak_depends]
     when 2
-      @irules[target_ary[0]] ||= {}
-      @irules[target_ary[0]][target_ary[1]] = [rulemethod, param, strong_depends, weak_depends]
+      if @irules[labelary[0]] && @irules[labelary[0]][labelary[1]]
+        raise ArgumentError, "rule already defined: #{target}"
+      end
+      @irules[labelary[0]] ||= {}
+      @irules[labelary[0]][labelary[1]] = [rulemethod, param, strong_depends, weak_depends]
     else
-      raise ArgumentError, "target too deep: #{target.inspect}"
+      if labelary.empty?
+        raise ArgumentError, "empty target"
+      else
+        raise ArgumentError, "target too deep: #{target.inspect}"
+      end
     end
   end
 
