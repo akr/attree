@@ -88,8 +88,10 @@ class Attree
     end
     @srules[label] = [:rule_constant, value, [], []]
     @values[label] = value
-    value.instance_variable_set(:@parent, self)
-    value.instance_variable_set(:@parent_label, label)
+    if value.kind_of?(Attree)
+      value.instance_variable_set(:@parent, self)
+      value.instance_variable_set(:@parent_label, label)
+    end
   end
 
   def rule_constant(target, value, depends)
