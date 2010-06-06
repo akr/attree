@@ -16,10 +16,10 @@ class TestCalc < Test::Unit::TestCase
       super()
       define_child_value("lhs", lhs)
       define_child_value("rhs", rhs)
-      define_rule("result", :rule_add, %w[lhs/result rhs/result])
+      define_rule("result", :rule_add, nil, %w[lhs/result rhs/result])
     end
 
-    def rule_add(depends)
+    def rule_add(param, depends)
       depends["lhs/result"] + depends["rhs/result"]
     end
   end

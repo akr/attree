@@ -76,20 +76,6 @@ class TestAttree < Test::Unit::TestCase
     assert_equal("m/n", t3.labelpath)
   end
 
-  def test_primitive_labels
-    t = Attree.new
-    t.define_child_value("o", 4)
-    t.define_rule("p", :dummymethod)
-    assert_equal(["o"], t.primitive_labels)
-  end
-
-  def test_derivative_labels
-    t = Attree.new
-    t.define_child_value("q", 4)
-    t.define_rule("r", :dummymethod)
-    assert_equal(["r"], t.derivative_labels)
-  end
-
   def test_list_labels
     t = Attree.new
     t.define_child_value("s", 4)
@@ -97,24 +83,16 @@ class TestAttree < Test::Unit::TestCase
     assert_equal(["s", "t"], t.list_labels.sort)
   end
 
-  def test_label_type
-    t = Attree.new
-    t.define_child_value("aa", 4)
-    t.define_rule("ab", :dummymethod)
-    assert_equal(:primitive, t.label_type("aa"))
-    assert_equal(:derivative, t.label_type("ab"))
-    assert_equal(nil, t.label_type("ac"))
-  end
-
   def test_get_rule
     t1 = Attree.new
     t2 = Attree.new
     t1.define_child_value("u", t2)
     t1.define_rule("u/v", :w)
-    t, labelpath, rulemethod, strong_depends, weak_depends = t2.get_rule("v")
+    t, labelpath, rulemethod, param, strong_depends, weak_depends = t2.get_rule("v")
     assert_same(t1, t)
     assert_equal("u/v", labelpath)
     assert_equal(:w, rulemethod)
+    assert_equal(nil, param)
     assert_equal([], strong_depends)
     assert_equal([], weak_depends)
   end
