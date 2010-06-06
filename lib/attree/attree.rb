@@ -35,17 +35,9 @@ class Attree
     end
   end
 
-  def lookup_rule(labelpath)
-    labelary = labelpath_to_a(labelpath)
-    case labelary.length
-    when 1
-      @srules[labelary[0]]
-    when 2
-      h = @irules[labelary[0]]
-      h ? h[labelary[1]] : nil
-    else
-      nil
-    end
+  def lookup_irule(label1, label2)
+    h = @irules[label1]
+    h ? h[label2] : nil
   end
 
   def fetch_known_child(label, *rest, &block)
@@ -76,7 +68,7 @@ class Attree
     end
     if @parent
       labelpath = "#{@parent_label}/#{label}"
-      if r = @parent.lookup_rule(labelpath)
+      if r = @parent.lookup_irule(@parent_label, label)
         rulemethod, param, strong_depends, weak_depends = r
         return @parent, labelpath, rulemethod, param, strong_depends, weak_depends
       end
