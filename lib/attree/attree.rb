@@ -110,15 +110,12 @@ class Attree
     labelary = []
     (@search_levels+1).times {
       labelpath = labelary.join("/")
-      n_rules = n.instance_variable_get(:@rules)
-      labels = n_rules.map {|lp, _|
+      labels = []
+      n.each_rule {|lp, _|
         la = labelpath_to_a(lp)
         last = la.pop
-        [la, last]
-      }.reject {|prefix, lastlabel|
-        prefix != labelary
-      }.map {|prefix, lastlabel|
-        lastlabel
+        next if la != labelary
+        labels << last
       }
       result.concat labels
       labelary.unshift n.parent_label
