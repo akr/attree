@@ -24,6 +24,10 @@ class Attree
     @rules.each(&block)
   end
 
+  def lookup_rule(labelpath)
+    @rules[labelpath]
+  end
+
   def fetch_known_child(label, *rest, &block)
     validate_label label
     if @values.include? label
@@ -50,9 +54,9 @@ class Attree
     labelary = [label]
     (@search_levels+1).times {
       labelpath = labelary.join("/")
-      n_rules = n.instance_variable_get(:@rules)
-      if n_rules.include? labelpath
-        rulemethod, param, strong_depends, weak_depends = n_rules.fetch(labelpath)
+      r = n.lookup_rule(labelpath)
+      if r
+        rulemethod, param, strong_depends, weak_depends = r
         return n, labelpath, rulemethod, param, strong_depends, weak_depends
       end
       labelary.unshift n.parent_label
