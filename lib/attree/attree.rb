@@ -4,7 +4,6 @@ class Attree
   def initialize
     @parent = nil
     @parent_label = nil
-    @search_levels = 0
     @srules = {} # label -> [rulemethod, param, strong_depends, weak_depends]
     @irules = {} # label -> label -> [rulemethod, param, strong_depends, weak_depends]
     @values = {} # label -> value
@@ -30,13 +29,21 @@ class Attree
     }
   end
 
+  def each_irule(label, &block)
+    h = @irules[label]
+    if h
+      h.each(&block)
+    end
+  end
+
   def lookup_rule(labelpath)
     labelary = labelpath_to_a(labelpath)
     case labelary.length
     when 1
       @srules[labelary[0]]
     when 2
-      @irules[labelary[0]][labelary[1]]
+      h = @irules[labelary[0]]
+      h ? h[labelary[1]] : nil
     else
       nil
     end
@@ -64,18 +71,17 @@ class Attree
   end
 
   def get_rule(label)
-    n = self
-    labelary = [label]
-    (@search_levels+1).times {
-      labelpath = labelary.join("/")
-      r = n.lookup_rule(labelpath)
-      if r
+    if r = @srules[label]
+      rulemethod, param, strong_depends, weak_depends = r
+      return self, label, rulemethod, param, strong_depends, weak_depends
+    end
+    if @parent
+      labelpath = "#{@parent_label}/#{label}"
+      if r = @parent.lookup_rule(labelpath)
         rulemethod, param, strong_depends, weak_depends = r
-        return n, labelpath, rulemethod, param, strong_depends, weak_depends
+        return @parent, labelpath, rulemethod, param, strong_depends, weak_depends
       end
-      labelary.unshift n.parent_label
-      n = n.parent
-    }
+    end
     nil
   end
 
@@ -116,39 +122,24 @@ class Attree
     if target_node.get_rule(lastlabel)
       raise ArgumentError, "rule already defined: #{target}"
     end
-    target_node_search_levels = target_node.instance_variable_get(:@search_levels)
-    if target_node_search_levels < labelary.length
-      target_node.instance_variable_set(:@search_levels, labelary.length)
-    end
     case target_ary.length
     when 1
       @srules[target] = [rulemethod, param, strong_depends, weak_depends]
     when 2
       @irules[target_ary[0]] ||= {}
       @irules[target_ary[0]][target_ary[1]] = [rulemethod, param, strong_depends, weak_depends]
-    when 2
     else
       raise ArgumentError, "target too deep: #{target.inspect}"
     end
   end
 
   def list_labels
-    result = []
-    n = self
-    labelary = []
-    (@search_levels+1).times {
-      labelpath = labelary.join("/")
-      labels = []
-      n.each_rule {|lp, _|
-        la = labelpath_to_a(lp)
-        last = la.pop
-        next if la != labelary
-        labels << last
+    result = @srules.keys
+    if @parent
+      @parent.each_irule(@parent_label) {|l, r|
+        result << l
       }
-      result.concat labels
-      labelary.unshift n.parent_label
-      n = n.parent
-    }
+    end
     result
   end
 
