@@ -108,16 +108,22 @@ class TestAttree < Test::Unit::TestCase
     assert_equal([t3, "z"], t1.fetch_known_lastref("x/y/z"))
   end
 
-  def test_each_rule
+  def test_each_irule
     t = Attree.new
+    t2 = Attree.new
+    t.define_child_value("u", t2)
     t.define_child_value("s", 4)
     t.define_rule("t", :dummymethod)
-    rules = []
-    t.each_rule {|rule|
-      rules << rule
-    }
-    labels = rules.map {|labelpath, (rulemethod, param, strong_depends, weak_depends)| labelpath }
-    assert_equal(["s", "t"], labels.sort)
+    t.define_rule("u/v", :dummymethod)
+    a = []
+    t.each_irule {|l1, l2, r| a << [l1, l2] }
+    assert_equal([["u", "v"]], a)
+    a = []
+    t.each_irule("u") {|l2, r| a << l2 }
+    assert_equal(["v"], a)
+    a = []
+    t.each_irule("w") {|l2, r| a << l2 }
+    assert_equal([], a)
   end
 
 end

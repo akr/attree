@@ -20,19 +20,18 @@ class Attree
     a.reverse.join("/")
   end
 
-  def each_rule(&block)
-    @srules.each(&block)
-    @irules.each {|l1, h|
-      h.each {|l2, r|
-        yield "#{l1}/#{l2}", r
+  def each_irule(label=nil, &block)
+    if label
+      h = @irules[label]
+      if h
+        h.each(&block)
+      end
+    else
+      @irules.each {|l1, h|
+        h.each {|l2, r|
+          yield l1, l2, r
+        }
       }
-    }
-  end
-
-  def each_irule(label, &block)
-    h = @irules[label]
-    if h
-      h.each(&block)
     end
   end
 
