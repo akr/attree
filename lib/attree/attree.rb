@@ -20,6 +20,10 @@ class Attree
     a.reverse.join("/")
   end
 
+  def each_rule(&block)
+    @rules.each(&block)
+  end
+
   def fetch_known_child(label, *rest, &block)
     validate_label label
     if @values.include? label
